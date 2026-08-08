@@ -52,12 +52,16 @@ func renderLetter(letter Letter) (string, error) {
 
 // buildMessage assembles an RFC 5322 message with CRLF line endings.
 func buildMessage(s Settings, to, subject, body, contentType string) []byte {
-	if s.From == "" {
-		s.From = s.Login
+	from := s.From
+	if from == "" {
+		from = s.Login
 	}
-	msg := "From: " + s.From + "\r\n" +
+	if s.Name != "" {
+		from = encodeWord(s.Name) + " <" + from + ">"
+	}
+	msg := "From: " + from + "\r\n" +
 		"To: " + to + "\r\n" +
-		"Subject: " + encodeSubject(subject) + "\r\n" +
+		"Subject: " + encodeWord(subject) + "\r\n" +
 		"Date: " + time.Now().Format(time.RFC1123Z) + "\r\n" +
 		"MIME-Version: 1.0\r\n" +
 		"Content-Type: " + contentType + "\r\n" +
@@ -66,15 +70,15 @@ func buildMessage(s Settings, to, subject, body, contentType string) []byte {
 	return []byte(msg)
 }
 
-// encodeSubject encodes non-ASCII subjects using RFC 2047 word encoding,
+// encodeWord encodes non-ASCII strings using RFC 2047 word encoding,
 // required by the SMTP protocol for international characters.
-func encodeSubject(subject string) string {
-	for _, r := range subject {
+func encodeWord(s string) string {
+	for _, r := range s {
 		if r > unicode.MaxASCII {
-			return mime.QEncoding.Encode("utf-8", subject)
+			return mime.QEncoding.Encode("utf-8", s)
 		}
 	}
-	return subject
+	return s
 }
 
 // send delivers msg to the recipient via the configured SMTP server.

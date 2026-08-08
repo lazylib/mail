@@ -8,6 +8,7 @@ type Settings struct {
 	SMTP     string // SMTP server host, e.g. "smtp.gmail.com"
 	Port     int    // SMTP server port: 587 (STARTTLS) or 465 (implicit TLS). 0 defaults to 587.
 	From     string // sender address used in the From header, e.g. "sender@example.com"
+	Name     string // optional sender display name: "From: Name <sender@example.com>"
 }
 
 type config struct {

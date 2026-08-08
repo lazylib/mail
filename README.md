@@ -24,6 +24,7 @@ func main() {
 		SMTP:     "smtp.example.com",     // SMTP server host
 		Port:     587,                    // 587 = STARTTLS, 465 = implicit TLS (0 defaults to 587)
 		From:     "sender@example.com",   // From header (defaults to Login if empty)
+		Name:     "Lazy Mail",            // optional display name: "From: Lazy Mail <sender@example.com>"
 	})
 
 	// Plain text email
@@ -54,6 +55,7 @@ func main() {
 | SMTP     | SMTP server host, e.g. `smtp.gmail.com`                            |
 | Port     | SMTP port: `587` (STARTTLS) or `465` (implicit TLS). `0` defaults to `587` |
 | From     | Sender address for the `From` header. Defaults to `Login` if empty |
+| Name     | Optional sender display name: `From: Name <address>` |
 
 ## API
 

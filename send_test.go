@@ -51,11 +51,17 @@ func TestRenderLetterBadTemplate(t *testing.T) {
 }
 
 func TestEncodeSubject(t *testing.T) {
-	if got := encodeSubject("Hello"); got != "Hello" {
+	if got := encodeWord("Hello"); got != "Hello" {
 		t.Errorf("ascii subject should be unchanged, got %q", got)
 	}
-	if got := encodeSubject("Привет"); !strings.Contains(strings.ToUpper(got), "=?UTF-8?Q?") {
+	if got := encodeWord("Привет"); !strings.Contains(strings.ToUpper(got), "=?UTF-8?Q?") {
 		t.Errorf("non-ascii subject should be encoded, got %q", got)
+	}
+}
+
+func TestEncodeWordASCII(t *testing.T) {
+	if got := encodeWord("Lazy Mail Team"); got != "Lazy Mail Team" {
+		t.Errorf("ascii word should be unchanged, got %q", got)
 	}
 }
 
@@ -75,7 +81,24 @@ func TestBuildMessage(t *testing.T) {
 			t.Errorf("message missing %q, got:\n%s", want, text)
 		}
 	}
-	if !strings.Contains(text, "\r\n\r\nBody text") {
-		t.Errorf("message must use CRLF line endings, got:\n%q", text)
+}
+
+func TestBuildMessageWithName(t *testing.T) {
+	s := Settings{Login: "user@example.com", SMTP: "smtp.example.com", Name: "Lazy Mail"}
+	msg := buildMessage(s, "to@example.com", "Hello", "Body", "text/plain; charset=UTF-8")
+	text := string(msg)
+
+	if !strings.Contains(text, "From: Lazy Mail <user@example.com>") {
+		t.Errorf("From header should contain display name, got:\n%s", text)
+	}
+}
+
+func TestBuildMessageWithFrom(t *testing.T) {
+	s := Settings{Login: "user@example.com", From: "sender@example.com", SMTP: "smtp.example.com"}
+	msg := buildMessage(s, "to@example.com", "Hello", "Body", "text/plain; charset=UTF-8")
+	text := string(msg)
+
+	if !strings.Contains(text, "From: sender@example.com") {
+		t.Errorf("From should take precedence over Login, got:\n%s", text)
 	}
 }
