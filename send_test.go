@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewReturnsInstance(t *testing.T) {
-	inst := New(Settings{Login: "user", Password: "pass", SMTP: "smtp.example.com"})
+	inst := New(Settings{Auth: &Auth{Login: "user", Password: "pass"}, SMTP: "smtp.example.com"})
 	if _, ok := inst.(config); !ok {
 		t.Fatalf("New() did not return a config instance")
 	}
@@ -66,7 +66,7 @@ func TestEncodeWordASCII(t *testing.T) {
 }
 
 func TestBuildMessage(t *testing.T) {
-	s := Settings{Login: "user@example.com", SMTP: "smtp.example.com"}
+	s := Settings{Auth: &Auth{Login: "user@example.com"}, SMTP: "smtp.example.com"}
 	msg := buildMessage(s, "to@example.com", "Hello", "Body text", "text/plain; charset=UTF-8")
 	text := string(msg)
 
@@ -84,7 +84,7 @@ func TestBuildMessage(t *testing.T) {
 }
 
 func TestBuildMessageWithName(t *testing.T) {
-	s := Settings{Login: "user@example.com", SMTP: "smtp.example.com", Name: "Lazy Mail"}
+	s := Settings{Auth: &Auth{Login: "user@example.com"}, SMTP: "smtp.example.com", Name: "Lazy Mail"}
 	msg := buildMessage(s, "to@example.com", "Hello", "Body", "text/plain; charset=UTF-8")
 	text := string(msg)
 
@@ -94,7 +94,7 @@ func TestBuildMessageWithName(t *testing.T) {
 }
 
 func TestBuildMessageWithFrom(t *testing.T) {
-	s := Settings{Login: "user@example.com", From: "sender@example.com", SMTP: "smtp.example.com"}
+	s := Settings{Auth: &Auth{Login: "user@example.com"}, From: "sender@example.com", SMTP: "smtp.example.com"}
 	msg := buildMessage(s, "to@example.com", "Hello", "Body", "text/plain; charset=UTF-8")
 	text := string(msg)
 

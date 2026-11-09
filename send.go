@@ -53,8 +53,8 @@ func renderLetter(letter Letter) (string, error) {
 // buildMessage assembles an RFC 5322 message with CRLF line endings.
 func buildMessage(s Settings, to, subject, body, contentType string) []byte {
 	from := s.From
-	if from == "" {
-		from = s.Login
+	if from == "" && s.Auth != nil {
+		from = s.Auth.Login
 	}
 	if s.Name != "" {
 		from = encodeWord(s.Name) + " <" + from + ">"
@@ -88,8 +88,8 @@ func (c config) send(msg []byte, to string) error {
 	if s.SMTP == "" {
 		return fmt.Errorf("mail: SMTP host is not set")
 	}
-	if s.From == "" && s.Login == "" {
-		return fmt.Errorf("mail: sender address is not set (Settings.From or Settings.Login)")
+	if s.From == "" && (s.Auth == nil || s.Auth.Login == "") {
+		return fmt.Errorf("mail: sender address is not set (Settings.From or Settings.Auth.Login)")
 	}
 
 	port := s.Port
@@ -104,8 +104,8 @@ func (c config) send(msg []byte, to string) error {
 	}
 	defer client.Close()
 
-	if s.Login != "" {
-		auth := smtp.PlainAuth("", s.Login, s.Password, s.SMTP)
+	if s.Auth != nil {
+		auth := smtp.PlainAuth("", s.Auth.Login, s.Auth.Password, s.SMTP)
 		if err := client.Auth(auth); err != nil {
 			return fmt.Errorf("mail: auth: %w", err)
 		}
